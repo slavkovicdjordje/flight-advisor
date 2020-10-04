@@ -1,0 +1,41 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hyperit.flightadvisor.mapper.CityMapper">
+
+    <resultMap id="CitySearchResponseMap" type="CitySearchResponse">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="countryName" column="countryName"/>
+        <result property="description" column="description"/>
+        <collection property="comments" ofType="com.hyperit.flightadvisor.bean.CommentSearchResponse">
+            <result property="id" column="commentId"/>
+            <result property="text" column="commentText"/>
+            <result property="dateAdded" column="commentDateAdded"/>
+        </collection>
+    </resultMap>
+    <select id="search" parameterType="CityFilter" resultMap="CitySearchResponseMap">
+        SELECT
+            c.id,
+            c.name,
+            c.description,
+            country.name AS countryName,
+            comment.id AS commentId,
+            comment.comment AS commentText,
+            comment.date_added AS commentDateAdded
+        FROM cities AS c
+        INNER JOIN countries AS country ON country.id = c.country_id
+        LEFT JOIN comments AS comment ON comment.id IN (SELECT tmp.id
+                                                        FROM comments AS tmp
+                                                        WHERE c.id=tmp.city_id
+                                                        ORDER BY tmp.id DESC
+                                                        <if test="noOfComments != null">
+                                                            LIMIT #{noOfComments}
+                                                        </if>
+                                                        )
+        <if test="name != null">
+            WHERE c.name = #{name}
+        </if>
+        ORDER BY c.id, comment.date_added DESC
+    </select>
+
+</mapper>

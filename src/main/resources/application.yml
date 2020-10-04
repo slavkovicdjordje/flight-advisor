@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:flightdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;IGNORECASE=TRUE;
+    driverClassName: org.h2.Driver
+    username: root
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+jwt:
+  secretKey: secret
+  expireLength: 86400000
+mybatis:
+  typeAliasesPackage: com.hyperit.flightadvisor.bean
+  mapperLocations: classpath*:**/mappers/*.xml
