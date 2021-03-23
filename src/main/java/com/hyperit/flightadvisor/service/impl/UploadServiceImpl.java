@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static java.lang.Integer.valueOf;
 import static java.util.stream.Collectors.toList;
@@ -71,9 +73,12 @@ public class UploadServiceImpl implements UploadService {
             Map<String, Airport> airports = airportService.findAll().stream()
                     .collect(toMap(airport -> airport.getId().toString(), airport -> airport));
 
+            Predicate<RouteDto> validRoutePredicate = route -> isRouteValid(route, airports);
+            Function<RouteDto, Route> mapToRoute = routeDto -> createRoute(routeDto, airports);
+
             List<Route> routes = csvData.stream()
-                    .filter(route -> isRouteValid(route, airports))
-                    .map(route -> createRoute(route, airports))
+                    .filter(validRoutePredicate)
+                    .map(mapToRoute)
                     .collect(toList());
 
             Set<Airline> airlines = new HashSet<>();
